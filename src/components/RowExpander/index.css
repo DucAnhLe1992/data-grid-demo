@@ -1,0 +1,16 @@
+.row-expander {
+  float: inline-end;
+  float: right;
+  display: table;
+  block-size: 100%;
+}
+
+.row-expander span {
+  display: table-cell;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.api {
+  float: initial;
+}

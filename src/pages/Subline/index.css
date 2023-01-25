@@ -1,0 +1,8 @@
+.data-grid > .rdg {
+    flex: 1;
+    block-size: 100%;
+  }
+
+  .subline-row {
+    padding: 20px;
+  }
