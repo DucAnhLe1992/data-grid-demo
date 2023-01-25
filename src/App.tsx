@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useAppDispatch } from "./redux/hooks";
 import { setInitData } from "./redux/reducers/data";
 import MenuAppBar from "./components/MenuAppBar";
-import Router from "./Router";
+import Router from "./components/Router";
 import "./App.css";
 
 function App() {

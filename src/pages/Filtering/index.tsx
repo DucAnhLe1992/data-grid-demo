@@ -1,11 +1,8 @@
-import React, { useState, createContext, useContext, useMemo } from "react";
-import DataGrid, {
-  Column,
-  HeaderRendererProps,
-  useFocusRef,
-} from "react-data-grid";
+import { useState, createContext, useMemo } from "react";
+import DataGrid, { Column } from "react-data-grid";
 import { TextField, Select, MenuItem } from "@mui/material";
 
+import FilterField from "../../components/FilterField";
 import { Row, Filter } from "../../types";
 import { useAppSelector } from "../../redux/hooks";
 import "./index.css";
@@ -97,7 +94,10 @@ const Filtering = () => {
         name: "API",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <TextField
                 {...rest}
@@ -119,7 +119,10 @@ const Filtering = () => {
         name: "Auth",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <Select
                 {...rest}
@@ -150,7 +153,10 @@ const Filtering = () => {
         name: "Category",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <Select
                 {...rest}
@@ -181,7 +187,10 @@ const Filtering = () => {
         name: "Cors",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <Select
                 {...rest}
@@ -212,7 +221,10 @@ const Filtering = () => {
         name: "Description",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <TextField
                 {...rest}
@@ -234,7 +246,10 @@ const Filtering = () => {
         name: "HTTPS",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <Select
                 {...rest}
@@ -265,7 +280,10 @@ const Filtering = () => {
         name: "Link",
         headerCellClass: "filter-element",
         headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement> {...p}>
+          <FilterField<Row, unknown, HTMLInputElement>
+            FilterContext={FilterContext}
+            {...p}
+          >
             {({ filters, ...rest }) => (
               <TextField
                 {...rest}
@@ -307,28 +325,5 @@ const Filtering = () => {
     </div>
   );
 };
-
-// this function is to render the filter field component
-function FilterField<R, SR, T extends HTMLOrSVGElement>({
-  isCellSelected,
-  column,
-  children,
-}: HeaderRendererProps<R, SR> & {
-  children: (args: {
-    ref: React.RefObject<T>;
-    tabIndex: number;
-    filters: Filter;
-  }) => React.ReactElement;
-}) {
-  const filters = useContext(FilterContext)!;
-  const { ref, tabIndex } = useFocusRef<T>(isCellSelected);
-
-  return (
-    <div>
-      <div>{column.name}</div>
-      <div>{children({ ref, tabIndex, filters })}</div>
-    </div>
-  );
-}
 
 export default Filtering;

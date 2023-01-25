@@ -3,19 +3,22 @@ import { HeaderRendererProps, useFocusRef } from "react-data-grid";
 
 import { Filter } from "../../types";
 
-export function FilterField<R, SR, T extends HTMLOrSVGElement>({
+interface FilterFieldProps {
+  FilterContext: Context<Filter | undefined>;
+}
+
+export default function FilterField<R, SR, T extends HTMLOrSVGElement>({
   isCellSelected,
   column,
-  FilterContext,
   children,
+  FilterContext,
 }: HeaderRendererProps<R, SR> & {
-  FilterContext: Context<Filter | undefined>;
   children: (args: {
     ref: React.RefObject<T>;
     tabIndex: number;
     filters: Filter;
   }) => React.ReactElement;
-}) {
+} & FilterFieldProps) {
   const filters = useContext(FilterContext)!;
   const { ref, tabIndex } = useFocusRef<T>(isCellSelected);
 
