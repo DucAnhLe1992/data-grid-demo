@@ -3,7 +3,7 @@ import { KeyboardArrowDown, KeyboardArrowRight } from "@mui/icons-material";
 import { useFocusRef } from "react-data-grid";
 
 import "./index.css";
-import { Row } from "../../types";
+import { Row } from "../../utils/types";
 
 interface RowExpanderProps {
   row: Row;

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import DataGrid from "react-data-grid";
 import "react-data-grid/lib/styles.css";
 
-import { Row, Column } from "../../types";
+import { Row, Column } from "../../utils/types";
 import { useAppSelector } from "../../redux/hooks";
 import "./index.css";
 

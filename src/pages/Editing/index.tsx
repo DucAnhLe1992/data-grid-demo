@@ -13,12 +13,6 @@ import { columns, initRows } from "../../utils/helpers";
 import "./index.css";
 
 const newColumns = columns.map((column) => {
-  /* if (["API", "Description", "Link"].includes(column.name as string))
-    return {
-      ...column,
-      editable: true,
-      editor: textEditor,
-    }; */
   if (column.name === "Auth")
     return {
       ...column,

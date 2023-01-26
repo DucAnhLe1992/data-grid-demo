@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  gap: 10px;
+}
+
+.root > .rdg {
+  flex: 1;
+}
+
+.filter-element {
+  line-height: 30px;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.filter-element > div {
+  padding-block: 0;
+  padding-inline: 8px;
+}

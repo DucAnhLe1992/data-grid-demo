@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { EditorProps } from "react-data-grid";
 import { useAppSelector } from "../../redux/hooks";
-import { Row } from "../../types";
+import { Row } from "../../utils/types";
 
 export function AuthEditor({ row, onRowChange }: EditorProps<Row>) {
   const data = useAppSelector((state) => state.data.entries);

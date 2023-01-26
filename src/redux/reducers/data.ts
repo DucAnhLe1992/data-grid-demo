@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { Data } from '../../types';
+import { Data } from '../../utils/types';
 import { AppDispatch } from '../store';
 
 const initialState: Data = {

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import DataGrid, { Column, DataGridHandle } from "react-data-grid";
 
-import { Detail } from "../../types";
+import { Detail } from "../../utils/types";
 import './index.css';
 
 interface SublineDetailsProps {

@@ -1,4 +1,3 @@
-import React from "react";
 import { AppBar, Box, Toolbar, Button } from "@mui/material";
 
 const MenuAppBar = () => {
@@ -23,6 +22,9 @@ const MenuAppBar = () => {
           </Button>
           <Button href="/editing" color="inherit">
             Editing
+          </Button>
+          <Button href="/combination" color="inherit">
+            Combination
           </Button>
         </Toolbar>
       </AppBar>

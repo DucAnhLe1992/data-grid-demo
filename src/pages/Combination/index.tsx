@@ -1,12 +1,28 @@
-import { useState, createContext, useMemo } from "react";
-import DataGrid, { Column } from "react-data-grid";
-import { TextField, Select, MenuItem } from "@mui/material";
+import { createContext, useState, useMemo } from "react";
+import DataGrid, {
+  Column,
+  SortColumn,
+  RowsChangeData,
+  textEditor,
+} from "react-data-grid";
+import { Select, MenuItem, TextField } from "@mui/material";
+import "react-data-grid/lib/styles.css";
 
-import FilterField from "../../components/FilterField";
-import { Row, Filter } from "../../utils/types";
 import { useAppSelector } from "../../redux/hooks";
+import { initRows, detailColumns, getComparator } from "../../utils/helpers";
+import { Filter, Row, Detail } from "../../utils/types";
+import FilterField from "../../components/FilterField";
+import SublineDetails from "../../components/SublineDetails";
+import RowExpander from "../../components/RowExpander";
 import "./index.css";
+import {
+  AuthEditor,
+  CategoryEditor,
+  CorsEditor,
+  HttpsEditor,
+} from "../../components/DropDownEditor";
 
+const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
   api: "",
   auth: "All",
@@ -17,78 +33,146 @@ const defaultFilters: Filter = {
   link: "",
 };
 
-const FilterContext = createContext<Filter | undefined>(undefined);
-
-const Filtering = () => {
+const Combination = () => {
   const data = useAppSelector((state) => state.data.entries);
   const [filters, setFilters] = useState<Filter>(defaultFilters);
+  const [rows, setRows] = useState(initRows(data));
+  const [filteredRows, setFilteredRows] = useState(rows);
+  const [sortedRows, setSortedRows] = useState(filteredRows);
+  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+  const [editedRows, setEditedRows] = useState(sortedRows);
 
-  const rows: Row[] = useMemo(
-    () =>
-      data?.map((row: any, index: number) => ({
-        id: index,
-        api: row.API,
-        auth: row.Auth || "none",
-        category: row.Category,
-        cors: row.Cors,
-        description: row.Description,
-        https: row.HTTPS.toString(),
-        link: row.Link,
-      })),
-    [data]
-  );
+  console.log(rows, filteredRows, sortedRows, editedRows);
 
-  // selection options for auth filter
-  const authSelections = useMemo(
-    () => Array.from(new Set(rows?.map((row) => row.auth))).map((auth) => auth),
-    [rows]
-  );
-  // selection options for category filter
-  const categorySelections = useMemo(
-    () =>
-      Array.from(new Set(rows?.map((row) => row.category))).map(
-        (category) => category
-      ),
-    [rows]
-  );
-  // selection options for cors filter
-  const corsSelections = useMemo(
-    () => Array.from(new Set(rows?.map((row) => row.cors))).map((cors) => cors),
-    [rows]
-  );
-  // selection options for link filter
-  const httpsSelections = useMemo(
-    () =>
-      Array.from(new Set(rows?.map((row) => row.https))).map((https) => https),
-    [rows]
-  );
+  useMemo(() => {
+    setRows(initRows(data));
+  }, [data]);
 
-  const filteredRows = useMemo(() => {
-    return rows?.filter((row) => {
-      return (
-        (filters.api
-          ? row.api.toLowerCase().includes(filters.api.toLowerCase())
-          : true) &&
-        (filters.auth !== "All" ? row.auth === filters.auth : true) &&
-        (filters.category !== "All"
-          ? row.category === filters.category
-          : true) &&
-        (filters.cors !== "All" ? row.cors === filters.cors : true) &&
-        (filters.description
-          ? row.description
-              .toLowerCase()
-              .includes(filters.description.toLowerCase())
-          : true) &&
-        (filters.https !== "All" ? row.https === filters.https : true) &&
-        (filters.link
-          ? row.link.toLowerCase().includes(filters.link.toLowerCase())
-          : true)
-      );
-    });
+  useMemo(() => {
+    setFilteredRows(
+      rows?.filter((row) => {
+        return (
+          (filters.api
+            ? row.api.toLowerCase().includes(filters.api.toLowerCase())
+            : true) &&
+          (filters.auth !== "All" ? row.auth === filters.auth : true) &&
+          (filters.category !== "All"
+            ? row.category === filters.category
+            : true) &&
+          (filters.cors !== "All" ? row.cors === filters.cors : true) &&
+          (filters.description
+            ? row.description
+                .toLowerCase()
+                .includes(filters.description.toLowerCase())
+            : true) &&
+          (filters.https !== "All" ? row.https === filters.https : true) &&
+          (filters.link
+            ? row.link.toLowerCase().includes(filters.link.toLowerCase())
+            : true)
+        );
+      })
+    );
   }, [rows, filters]);
+
+  useMemo(() => {
+    setSortedRows(() => {
+      if (sortColumns.length === 0) return filteredRows;
+
+      return [...filteredRows].sort((a, b) => {
+        for (const sort of sortColumns) {
+          const comparator = getComparator(sort.columnKey);
+          const compResult = comparator(a, b);
+          if (compResult !== 0) {
+            return sort.direction === "ASC" ? compResult : -compResult;
+          }
+        }
+        return 0;
+      });
+    });
+  }, [filteredRows, sortColumns]);
+
+  const details: Detail[] = useMemo(
+    () =>
+      rows?.map((row) => ({
+        type: "detail",
+        ...row,
+      })),
+    [rows]
+  );
+
+  const classifications = useMemo(() => {
+    return rows?.reduce(
+      (previous, current) => ({
+        auth: previous.auth.includes(current.auth)
+          ? previous.auth
+          : [...previous.auth, current.auth],
+        cors: previous.cors.includes(current.cors)
+          ? previous.cors
+          : [...previous.cors, current.cors],
+        https: previous.https.includes(current.https)
+          ? previous.https
+          : [...previous.https, current.https],
+        category: previous.category.includes(current.category)
+          ? previous.category
+          : [...previous.category, current.category],
+      }),
+      {
+        auth: [] as string[],
+        cors: [] as string[],
+        https: [] as string[],
+        category: [] as string[],
+      }
+    );
+  }, [rows]);
+
+  const onRowsChange = (rows: Row[], { indexes }: RowsChangeData<Row>) => {
+    const row = rows[indexes[0]];
+    if (!row.expanded) {
+      rows.splice(indexes[0] + 1, 1);
+    } else {
+      rows.splice(indexes[0] + 1, 0, details[row.id]);
+    }
+    setSortedRows(rows);
+  };
 
   const columns = useMemo(
     (): Column<Row>[] => [
+      {
+        key: "expand",
+        name: "",
+        minWidth: 30,
+        maxWidth: 30,
+        colSpan(props) {
+          return props.type === "ROW" && props.row.type === "detail"
+            ? 8
+            : undefined;
+        },
+        cellClass(row) {
+          return row.type === "detail" ? "subline-row" : undefined;
+        },
+        formatter({ row, isCellSelected, onRowChange }) {
+          if (row.type === "detail") {
+            return (
+              <SublineDetails
+                columns={detailColumns}
+                rows={[details[row.id]]}
+                isRowSelected={isCellSelected}
+              />
+            );
+          }
+
+          return (
+            <RowExpander
+              row={row}
+              isRowSelected={isCellSelected}
+              isExpanded={row.expanded || false}
+              onRowExpand={() => {
+                onRowChange({ ...row, expanded: !row.expanded });
+              }}
+            />
+          );
+        },
+      },
       {
         key: "api",
         name: "API",
@@ -112,6 +196,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: textEditor,
       },
       {
         key: "auth",
@@ -136,7 +222,7 @@ const Filtering = () => {
                 <MenuItem key={"All"} value={"All"}>
                   All
                 </MenuItem>
-                {authSelections.map((element) => (
+                {classifications.auth.map((element) => (
                   <MenuItem key={element} value={element}>
                     {element}
                   </MenuItem>
@@ -145,6 +231,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: AuthEditor,
       },
       {
         key: "category",
@@ -169,7 +257,7 @@ const Filtering = () => {
                 <MenuItem key={"All"} value={"All"}>
                   All
                 </MenuItem>
-                {categorySelections.map((element) => (
+                {classifications.category.map((element) => (
                   <MenuItem key={element} value={element}>
                     {element}
                   </MenuItem>
@@ -178,6 +266,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: CategoryEditor,
       },
       {
         key: "cors",
@@ -202,7 +292,7 @@ const Filtering = () => {
                 <MenuItem key={"All"} value={"All"}>
                   All
                 </MenuItem>
-                {corsSelections.map((element) => (
+                {classifications.cors.map((element) => (
                   <MenuItem key={element} value={element}>
                     {element}
                   </MenuItem>
@@ -211,6 +301,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: CorsEditor,
       },
       {
         key: "description",
@@ -235,6 +327,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: textEditor,
       },
       {
         key: "https",
@@ -259,7 +353,7 @@ const Filtering = () => {
                 <MenuItem key={"All"} value={"All"}>
                   All
                 </MenuItem>
-                {httpsSelections.map((element) => (
+                {classifications.https.map((element) => (
                   <MenuItem key={element} value={element}>
                     {element}
                   </MenuItem>
@@ -268,6 +362,8 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: HttpsEditor,
       },
       {
         key: "link",
@@ -292,31 +388,37 @@ const Filtering = () => {
             )}
           </FilterField>
         ),
+        editable: true,
+        editor: textEditor,
       },
     ],
-    [authSelections, categorySelections, corsSelections, httpsSelections]
+    [
+      classifications.auth,
+      classifications.category,
+      classifications.cors,
+      classifications.https,
+      details,
+    ]
   );
 
   return (
-    <div className="filter-rows">
+    <div className="root">
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
-          rows={[
-            {
-              id: -1,
-              ...defaultFilters,
-            },
-            {
-              id: -2,
-              ...defaultFilters,
-            },
-          ].concat(filteredRows)}
-          className="data-grid"
+          rows={sortedRows}
+          defaultColumnOptions={{ resizable: true, sortable: true }}
+          onRowsChange={onRowsChange}
+          rowHeight={(args) =>
+            args.type === "ROW" && args.row.type === "detail" ? 120 : 35
+          }
+          headerRowHeight={100}
+          sortColumns={sortColumns}
+          onSortColumnsChange={setSortColumns}
         />
       </FilterContext.Provider>
     </div>
   );
 };
 
-export default Filtering;
+export default Combination;

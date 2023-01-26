@@ -7,6 +7,7 @@ import Filtering from '../../pages/Filtering';
 import Sorting from "../../pages/Sorting";
 import Subline from "../../pages/Subline";
 import Editing from "../../pages/Editing";
+import Combination from "../../pages/Combination";
 
 const Router = () => (
   <Routes>
@@ -16,6 +17,7 @@ const Router = () => (
     <Route path="/sorting/" element={<Sorting />} />
     <Route path="/subline/" element={<Subline />} />
     <Route path="/editing/" element={<Editing />} />
+    <Route path="/combination/" element={<Combination />} />
   </Routes>
 );
 

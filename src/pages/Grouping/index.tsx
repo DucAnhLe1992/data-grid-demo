@@ -9,7 +9,7 @@ import { groupBy } from "lodash";
 import DataGrid, { Column } from "react-data-grid";
 
 import { useAppSelector } from "../../redux/hooks";
-import { Row } from "../../types";
+import { Row } from "../../utils/types";
 import "./index.css";
 
 const options = [

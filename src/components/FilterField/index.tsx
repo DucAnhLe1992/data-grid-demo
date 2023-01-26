@@ -1,7 +1,7 @@
 import { Context, useContext } from "react";
 import { HeaderRendererProps, useFocusRef } from "react-data-grid";
 
-import { Filter } from "../../types";
+import { Filter } from "../../utils/types";
 
 interface FilterFieldProps {
   FilterContext: Context<Filter | undefined>;

@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import DataGrid, { Column, SortColumn } from "react-data-grid";
 import "react-data-grid/lib/styles.css";
 
-import { Row, Comparator } from "../../types";
+import { getComparator } from "../../utils/helpers";
+import { Row } from "../../utils/types";
 import { useAppSelector } from "../../redux/hooks";
 import "./index.css";
 
@@ -62,11 +63,5 @@ const Sorting = () => {
     </div>
   );
 };
-
-function getComparator(sortColumn: string): Comparator {
-  return (a, b) => {
-    return (a as any)[sortColumn].localeCompare((b as any)[sortColumn]);
-  };
-}
 
 export default Sorting;
