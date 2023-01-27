@@ -1,6 +1,7 @@
-import { Column } from "react-data-grid";
+import { Column, textEditor } from "react-data-grid";
+import { AuthEditor, CategoryEditor, CorsEditor, HttpsEditor } from "../components/DropDownEditor";
 
-import { Row, Entry, Detail, Comparator } from "./types";
+import { Row, Entry, Comparator } from "./types";
 
 export const columns: Column<Row>[] = [
     { key: "api", name: "API" },
@@ -22,16 +23,17 @@ export const initRows = (data: Entry[]): Row[] =>
         description: row.Description,
         https: row.HTTPS.toString(),
         link: row.Link,
+        expanded: false,
     }));
 
-export const detailColumns: Column<Detail>[] = [
-    { key: "api", name: "API" },
-    { key: "auth", name: "Auth" },
-    { key: "category", name: "Category" },
-    { key: "cors", name: "Cors" },
-    { key: "description", name: "Description" },
-    { key: "https", name: "HTTPS" },
-    { key: "link", name: "Link" },
+export const detailColumns: Column<Row>[] = [
+    { key: "api", name: "API", editable: true, editor: textEditor },
+    { key: "auth", name: "Auth", editable: true, editor: AuthEditor },
+    { key: "category", name: "Category", editable: true, editor: CategoryEditor },
+    { key: "cors", name: "Cors", editable: true, editor: CorsEditor },
+    { key: "description", name: "Description", editable: true, editor: textEditor },
+    { key: "https", name: "HTTPS", editable: true, editor: HttpsEditor },
+    { key: "link", name: "Link", editable: true, editor: textEditor },
 ];
 
 export const getComparator = (sortColumn: string): Comparator => {

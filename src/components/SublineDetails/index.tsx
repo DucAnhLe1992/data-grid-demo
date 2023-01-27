@@ -1,11 +1,11 @@
 import { useRef, useEffect } from "react";
 import DataGrid, { Column, DataGridHandle } from "react-data-grid";
 
-import { Detail } from "../../utils/types";
-import './index.css';
+import { Detail, Row } from "../../utils/types";
+import "./index.css";
 
 interface SublineDetailsProps {
-  columns: Column<Detail>[];
+  columns: Column<Row>[];
   rows: Detail[];
   isRowSelected: boolean;
 }
@@ -31,6 +31,7 @@ const SublineDetails = ({
         rows={rows}
         ref={gridRef}
         rowKeyGetter={(row) => row.id}
+        //onRowsChange={}
       />
     </div>
   );

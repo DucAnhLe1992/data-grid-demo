@@ -38,11 +38,11 @@ const Combination = () => {
   const [filters, setFilters] = useState<Filter>(defaultFilters);
   const [rows, setRows] = useState(initRows(data));
   const [filteredRows, setFilteredRows] = useState(rows);
-  const [sortedRows, setSortedRows] = useState(filteredRows);
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
-  const [editedRows, setEditedRows] = useState(sortedRows);
+  //const [sortedRows, setSortedRows] = useState(filteredRows);
+  //const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+  const [editedRows, setEditedRows] = useState(filteredRows);
 
-  console.log(rows, filteredRows, sortedRows, editedRows);
+  console.log(rows);
 
   useMemo(() => {
     setRows(initRows(data));
@@ -74,7 +74,7 @@ const Combination = () => {
     );
   }, [rows, filters]);
 
-  useMemo(() => {
+  /* useMemo(() => {
     setSortedRows(() => {
       if (sortColumns.length === 0) return filteredRows;
 
@@ -89,7 +89,11 @@ const Combination = () => {
         return 0;
       });
     });
-  }, [filteredRows, sortColumns]);
+  }, [filteredRows, sortColumns]); */
+
+  useMemo(() => {
+    setEditedRows(filteredRows);
+  }, [filteredRows]);
 
   const details: Detail[] = useMemo(
     () =>
@@ -132,7 +136,7 @@ const Combination = () => {
     } else {
       rows.splice(indexes[0] + 1, 0, details[row.id]);
     }
-    setSortedRows(rows);
+    setRows(rows);
   };
 
   const columns = useMemo(
@@ -196,8 +200,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: textEditor,
       },
       {
         key: "auth",
@@ -231,8 +233,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: AuthEditor,
       },
       {
         key: "category",
@@ -266,8 +266,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: CategoryEditor,
       },
       {
         key: "cors",
@@ -301,8 +299,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: CorsEditor,
       },
       {
         key: "description",
@@ -327,8 +323,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: textEditor,
       },
       {
         key: "https",
@@ -362,8 +356,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: HttpsEditor,
       },
       {
         key: "link",
@@ -388,8 +380,6 @@ const Combination = () => {
             )}
           </FilterField>
         ),
-        editable: true,
-        editor: textEditor,
       },
     ],
     [
@@ -406,15 +396,15 @@ const Combination = () => {
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
-          rows={sortedRows}
+          rows={editedRows}
           defaultColumnOptions={{ resizable: true, sortable: true }}
           onRowsChange={onRowsChange}
           rowHeight={(args) =>
             args.type === "ROW" && args.row.type === "detail" ? 120 : 35
           }
           headerRowHeight={100}
-          sortColumns={sortColumns}
-          onSortColumnsChange={setSortColumns}
+          //sortColumns={sortColumns}
+          //onSortColumnsChange={setSortColumns}
         />
       </FilterContext.Provider>
     </div>

@@ -48,7 +48,7 @@ const Home = () => {
     [rows]
   );
 
-  const columns: Column<Row>[] = [
+  const columns: Column<Row | Detail>[] = [
     {
       key: "expand",
       name: "",
@@ -60,13 +60,13 @@ const Home = () => {
           : undefined;
       },
       cellClass(row) {
-          return row.type === 'detail' ? 'subline-row' : undefined;
+        return row.type === "detail" ? "subline-row" : undefined;
       },
       formatter({ row, isCellSelected, onRowChange }) {
         if (row.type === "detail") {
           return (
             <SublineDetails
-              columns={detailColumns}
+              columns={detailColumns as unknown as Column<Row>[]}
               rows={[details[row.id]]}
               isRowSelected={isCellSelected}
             />
