@@ -1,14 +1,4 @@
-import {
-  Key,
-  createContext,
-  useState,
-  useMemo,
-  useLayoutEffect,
-  useReducer,
-  useRef,
-  ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
+import { Key, createContext, useState, useMemo, ReactNode } from "react";
 import DataGrid, {
   Column,
   SortColumn,
@@ -17,27 +7,25 @@ import DataGrid, {
   RowRendererProps,
   Row as DataGridRow,
 } from "react-data-grid";
-import {
-  Select,
-  MenuItem,
-  TextField,
-  Menu,
-  List,
-  ListItem,
-  Button,
-} from "@mui/material";
+import { Select, MenuItem, TextField } from "@mui/material";
+import { groupBy } from "lodash";
 import "react-data-grid/lib/styles.css";
 
 import { useAppSelector } from "../../redux/hooks";
-import { initRows, detailColumns, getComparator } from "../../utils/helpers";
+import {
+  initRows,
+  detailColumns,
+  groupingOptions,
+  getComparator,
+} from "../../utils/helpers";
 import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
 import FilterField from "../../components/FilterField";
 import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
+import GroupingForm from "../../components/GroupingForm";
 import { useConTextMenu } from "../../utils/hooks";
 import "./index.css";
 import ContextMenuComponent from "../../components/ContextMenu";
-//import RowRenderer from "../../components/RowRenderer";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -51,23 +39,34 @@ const defaultFilters: Filter = {
 };
 
 const Combination = () => {
+  //load data from app store
   const data = useAppSelector((state) => state.data.entries);
-  const [filters, setFilters] = useState<Filter>(defaultFilters);
   const [rows, setRows] = useState(initRows(data));
+
+  //raw data then to be filtered
+  const [filters, setFilters] = useState<Filter>(defaultFilters);
   const [filteredRows, setFilteredRows] = useState(rows);
+
   //const [sortedRows, setSortedRows] = useState(filteredRows);
   //const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+
+  //filtered data then to be allowed for editing
   const [editedRows, setEditedRows] = useState(filteredRows);
+
+  //filtered data then also to be grouped
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [expandedGroup, setExpandedGroup] = useState<any>(null);
+
+  //manage right-clicked context menu
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
   const { clicked, setClicked } = useConTextMenu();
-  const menuRef = useRef<HTMLMenuElement | null>(null);
 
-  const isContextMenuOpen = contextMenu !== null;
-
+  //load data everytime the incoming data changes
   useMemo(() => {
     setRows(initRows(data));
   }, [data]);
 
+  //filtering mechanism happens here
   useMemo(() => {
     setFilteredRows(
       rows?.filter((row) => {
@@ -111,10 +110,12 @@ const Combination = () => {
     });
   }, [filteredRows, sortColumns]); */
 
+  //only allow filtered data to be edited
   useMemo(() => {
     setEditedRows(filteredRows);
   }, [filteredRows]);
 
+  //data for the subline section
   const details: Detail[] = useMemo(
     () =>
       rows?.map((row) => ({
@@ -124,6 +125,8 @@ const Combination = () => {
     [rows]
   );
 
+  //selection options for some input fields
+  //specifically Authentication. Cors, HTTPS, Category
   const classifications = useMemo(() => {
     return rows?.reduce(
       (previous, current) => ({
@@ -149,6 +152,7 @@ const Combination = () => {
     );
   }, [rows]);
 
+  //add and remove subline section
   const onRowsChange = (rows: Row[], { indexes }: RowsChangeData<Row>) => {
     const row = rows[indexes[0]];
     if (!row.expanded) {
@@ -159,28 +163,7 @@ const Combination = () => {
     setRows(rows);
   };
 
-  /* useLayoutEffect(() => {
-    if (!isContextMenuOpen) return;
-
-    function onContextMenu(event: any) {
-      if (
-        event.target instanceof Node &&
-        menuRef.current?.contains(event.target)
-      ) {
-        return;
-      }
-      setContextMenu(null);
-    }
-
-    // eslint-disable-next-line no-restricted-globals
-    //addEventListener("contextmenu", onContextMenu);
-
-    return () => {
-      // eslint-disable-next-line no-restricted-globals
-      //removeEventListener("contextmenu", onContextMenu);
-    };
-  }, [isContextMenuOpen]); */
-
+  //define the columns for the data grid, adding filtering fields too.
   const columns = useMemo(
     (): Column<Row>[] => [
       {
@@ -435,10 +418,19 @@ const Combination = () => {
 
   return (
     <div className="root">
+      <GroupingForm
+        options={groupingOptions}
+        selectedOptions={selectedOptions}
+        setSelectedOptions={setSelectedOptions}
+      />
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
           rows={editedRows}
+          groupBy={selectedOptions}
+          rowGrouper={groupBy}
+          expandedGroupIds={expandedGroup}
+          onExpandedGroupIdsChange={setExpandedGroup}
           defaultColumnOptions={{ resizable: true, sortable: true }}
           onRowsChange={onRowsChange}
           rowHeight={(args) =>
@@ -446,11 +438,8 @@ const Combination = () => {
           }
           headerRowHeight={100}
           rowKeyGetter={(row) => row.id}
-          /* onRowDoubleClick={(row: Row, column: Column<Row>) => {
-            console.log(row);
-            console.log(column);
-          }} */
           renderers={{
+            //rendering each row with another component which allows right-click
             rowRenderer: ((
               key: Key,
               props: RowRendererProps<typeof DataGridRow, unknown>

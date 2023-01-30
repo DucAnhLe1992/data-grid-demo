@@ -3,6 +3,16 @@ import { AuthEditor, CategoryEditor, CorsEditor, HttpsEditor } from "../componen
 
 import { Row, Entry, Comparator } from "./types";
 
+export const groupingOptions = [
+    "API",
+    "Auth",
+    "Category",
+    "Cors",
+    "Description",
+    "HTTPS",
+    "Link",
+];
+
 export const columns: Column<Row>[] = [
     { key: "api", name: "API" },
     { key: "auth", name: "Auth" },
