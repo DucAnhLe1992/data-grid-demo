@@ -1,26 +1,43 @@
-import { createContext, useState, useMemo } from "react";
+import {
+  Key,
+  createContext,
+  useState,
+  useMemo,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import DataGrid, {
   Column,
   SortColumn,
   RowsChangeData,
   textEditor,
+  RowRendererProps,
+  Row as DataGridRow,
 } from "react-data-grid";
-import { Select, MenuItem, TextField } from "@mui/material";
+import {
+  Select,
+  MenuItem,
+  TextField,
+  Menu,
+  List,
+  ListItem,
+  Button,
+} from "@mui/material";
 import "react-data-grid/lib/styles.css";
 
 import { useAppSelector } from "../../redux/hooks";
 import { initRows, detailColumns, getComparator } from "../../utils/helpers";
-import { Filter, Row, Detail } from "../../utils/types";
+import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
 import FilterField from "../../components/FilterField";
 import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
+import { useConTextMenu } from "../../utils/hooks";
 import "./index.css";
-import {
-  AuthEditor,
-  CategoryEditor,
-  CorsEditor,
-  HttpsEditor,
-} from "../../components/DropDownEditor";
+import ContextMenuComponent from "../../components/ContextMenu";
+//import RowRenderer from "../../components/RowRenderer";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -41,8 +58,11 @@ const Combination = () => {
   //const [sortedRows, setSortedRows] = useState(filteredRows);
   //const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
   const [editedRows, setEditedRows] = useState(filteredRows);
+  const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
+  const { clicked, setClicked } = useConTextMenu();
+  const menuRef = useRef<HTMLMenuElement | null>(null);
 
-  console.log(rows);
+  const isContextMenuOpen = contextMenu !== null;
 
   useMemo(() => {
     setRows(initRows(data));
@@ -138,6 +158,28 @@ const Combination = () => {
     }
     setRows(rows);
   };
+
+  /* useLayoutEffect(() => {
+    if (!isContextMenuOpen) return;
+
+    function onContextMenu(event: any) {
+      if (
+        event.target instanceof Node &&
+        menuRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setContextMenu(null);
+    }
+
+    // eslint-disable-next-line no-restricted-globals
+    //addEventListener("contextmenu", onContextMenu);
+
+    return () => {
+      // eslint-disable-next-line no-restricted-globals
+      //removeEventListener("contextmenu", onContextMenu);
+    };
+  }, [isContextMenuOpen]); */
 
   const columns = useMemo(
     (): Column<Row>[] => [
@@ -403,10 +445,48 @@ const Combination = () => {
             args.type === "ROW" && args.row.type === "detail" ? 120 : 35
           }
           headerRowHeight={100}
+          rowKeyGetter={(row) => row.id}
+          /* onRowDoubleClick={(row: Row, column: Column<Row>) => {
+            console.log(row);
+            console.log(column);
+          }} */
+          renderers={{
+            rowRenderer: ((
+              key: Key,
+              props: RowRendererProps<typeof DataGridRow, unknown>
+            ) => {
+              const handleContextMenu = (event: any) => {
+                event.preventDefault();
+                setClicked(true);
+                setContextMenu({
+                  rowId: Number.parseInt(key?.toString()),
+                  top: event?.clientX,
+                  left: event?.clientY,
+                });
+              };
+
+              return (
+                <DataGridRow
+                  key={key}
+                  onContextMenu={handleContextMenu}
+                  {...props}
+                />
+              );
+            }) as unknown as Maybe<
+              (key: Key, props: RowRendererProps<Row, unknown>) => ReactNode
+            >,
+          }}
           //sortColumns={sortColumns}
           //onSortColumnsChange={setSortColumns}
         />
       </FilterContext.Provider>
+      {clicked && (
+        <ContextMenuComponent
+          open={clicked}
+          posX={contextMenu?.top || 0}
+          posY={contextMenu?.left || 0}
+        />
+      )}
     </div>
   );
 };

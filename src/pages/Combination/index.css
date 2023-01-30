@@ -20,3 +20,15 @@
   padding-block: 0;
   padding-inline: 8px;
 }
+
+.context-menu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  padding: 16px;
+  list-style: none;
+}
+
+.context-menu > li {
+  padding: 8px;
+}
