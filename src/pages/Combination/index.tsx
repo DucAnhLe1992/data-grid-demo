@@ -7,7 +7,7 @@ import DataGrid, {
   RowRendererProps,
   Row as DataGridRow,
 } from "react-data-grid";
-import { Select, MenuItem, TextField } from "@mui/material";
+import { Select, MenuItem, TextField, Button } from "@mui/material";
 import { groupBy } from "lodash";
 import { CSVLink } from "react-csv";
 import "react-data-grid/lib/styles.css";
@@ -20,11 +20,21 @@ import {
   getComparator,
   columns as exportColumns,
 } from "../../utils/helpers";
-import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
+import {
+  Filter,
+  Row,
+  Detail,
+  Maybe,
+  ContextMenu,
+  Orientation,
+  Unit,
+  Size,
+} from "../../utils/types";
 import FilterField from "../../components/FilterField";
 import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
 import GroupingForm from "../../components/GroupingForm";
+import SavePDF from "../../components/SavePDF";
 import { useConTextMenu } from "../../utils/hooks";
 import ContextMenuComponent from "../../components/ContextMenu";
 import { LabelKeyObject } from "react-csv/components/CommonPropTypes";
@@ -429,20 +439,45 @@ const Combination = () => {
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
         />
-        <CSVLink
-          className="csv-btn"
-          filename="CSV-Excel-report"
-          data={editedRows}
-          headers={exportColumns.map(
-            (column: Column<Row>) =>
-              ({
-                label: column.name,
-                key: column.key,
-              } as LabelKeyObject)
-          )}
-        >
-          Download CSV file
-        </CSVLink>
+        <div className="header-save-reports">
+          <Button>
+            <CSVLink
+              className="csv-btn"
+              filename="CSV-Excel-report"
+              data={editedRows}
+              headers={exportColumns.map(
+                (column: Column<Row>) =>
+                  ({
+                    label: column.name,
+                    key: column.key,
+                  } as LabelKeyObject)
+              )}
+            >
+              Download CSV file
+            </CSVLink>
+          </Button>
+          <SavePDF
+            orientation="p"
+            unit="pc"
+            size="A4"
+            title="API Report"
+            headers={[
+              exportColumns
+                .map((column: Column<Row>) => column.name as string)
+                .filter(
+                  (header) => header !== "Description" && header !== "Link"
+                ),
+            ]}
+            data={editedRows.map((row: Row) => [
+              row.api,
+              row.auth,
+              row.category,
+              row.cors,
+              row.https,
+            ])}
+            fileName="PDF-report"
+          />
+        </div>
       </div>
       <FilterContext.Provider value={filters}>
         <DataGrid
