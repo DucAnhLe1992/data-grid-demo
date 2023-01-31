@@ -9,6 +9,7 @@ import DataGrid, {
 } from "react-data-grid";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { groupBy } from "lodash";
+import { CSVLink } from "react-csv";
 import "react-data-grid/lib/styles.css";
 
 import { useAppSelector } from "../../redux/hooks";
@@ -17,6 +18,7 @@ import {
   detailColumns,
   groupingOptions,
   getComparator,
+  columns as exportColumns,
 } from "../../utils/helpers";
 import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
 import FilterField from "../../components/FilterField";
@@ -24,8 +26,9 @@ import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
 import GroupingForm from "../../components/GroupingForm";
 import { useConTextMenu } from "../../utils/hooks";
-import "./index.css";
 import ContextMenuComponent from "../../components/ContextMenu";
+import { LabelKeyObject } from "react-csv/components/CommonPropTypes";
+import "./index.css";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -59,7 +62,9 @@ const Combination = () => {
 
   //manage right-clicked context menu
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
-  const { clicked, setClicked } = useConTextMenu();
+  const { clicked, setClicked } = useConTextMenu({
+    setContextMenu: setContextMenu,
+  });
 
   //load data everytime the incoming data changes
   useMemo(() => {
@@ -418,11 +423,27 @@ const Combination = () => {
 
   return (
     <div className="root">
-      <GroupingForm
-        options={groupingOptions}
-        selectedOptions={selectedOptions}
-        setSelectedOptions={setSelectedOptions}
-      />
+      <div className="header">
+        <GroupingForm
+          options={groupingOptions}
+          selectedOptions={selectedOptions}
+          setSelectedOptions={setSelectedOptions}
+        />
+        <CSVLink
+          className="csv-btn"
+          filename="CSV-Excel-report"
+          data={editedRows}
+          headers={exportColumns.map(
+            (column: Column<Row>) =>
+              ({
+                label: column.name,
+                key: column.key,
+              } as LabelKeyObject)
+          )}
+        >
+          Download CSV file
+        </CSVLink>
+      </div>
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
@@ -469,11 +490,11 @@ const Combination = () => {
           //onSortColumnsChange={setSortColumns}
         />
       </FilterContext.Provider>
-      {clicked && (
+      {clicked && contextMenu && (
         <ContextMenuComponent
           open={clicked}
-          posX={contextMenu?.top || 0}
-          posY={contextMenu?.left || 0}
+          posX={contextMenu.top || 0}
+          posY={contextMenu.left || 0}
         />
       )}
     </div>

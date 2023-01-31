@@ -7,7 +7,6 @@ interface ContextMenuProps {
 }
 
 const ContextMenu = ({ open, posX, posY }: ContextMenuProps) => {
-  console.log("X", posX, "Y", posY, "Open", open);
   return (
     <Menu
       open={open}

@@ -32,3 +32,17 @@
 .context-menu > li {
   padding: 8px;
 }
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline-start: 30%;
+  padding-inline-end: 10%;
+}
+
+.csv-btn {
+  text-decoration: none;
+  color: inherit;
+}
