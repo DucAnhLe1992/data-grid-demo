@@ -62,7 +62,6 @@ const Combination = () => {
   const [filteredRows, setFilteredRows] = useState(rows);
 
   const [sortedRows, setSortedRows] = useState(filteredRows);
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
   //filtered data then to be allowed for editing
   const [editedRows, setEditedRows] = useState(sortedRows);
@@ -109,7 +108,7 @@ const Combination = () => {
     );
   }, [rows, filters]);
 
-  useMemo(() => {
+  /* useMemo(() => {
     setSortedRows(() => {
       if (sortColumns.length === 0) return filteredRows;
 
@@ -124,7 +123,7 @@ const Combination = () => {
         return 0;
       });
     });
-  }, [filteredRows, sortColumns]);
+  }, [filteredRows, sortColumns]); */
 
   //only allow filtered data to be edited
   useMemo(() => {
@@ -435,7 +434,11 @@ const Combination = () => {
   return (
     <div className="root">
       <div className="header">
-        <SortingField />
+        <SortingField
+          sortOptions={exportColumns}
+          rows={filteredRows}
+          setSortedRows={setSortedRows}
+        />
         <GroupingForm
           options={groupingOptions}
           selectedOptions={selectedOptions}
