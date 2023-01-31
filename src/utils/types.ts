@@ -50,13 +50,3 @@ export type Orientation = "p" | "portrait" | "l" | "landscape";
 export type Unit = "pt" | "px" | "in" | "mm" | "cm" | "ex" | "em" | "pc";
 
 export type Size = "A1" | "A2" | "A3" | "A4";
-
-export type exportToPDFProps = {
-  orientation: Orientation;
-  unit: Unit;
-  size: string;
-  title?: string;
-  headers: string[][];
-  data: string[][];
-  fileName: string;
-};

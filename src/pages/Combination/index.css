@@ -38,16 +38,11 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding-inline-start: 30%;
+  padding-inline-start: 10%;
   padding-inline-end: 10%;
 }
 
 .header-save-reports {
   display: flex;
   flex-direction: column;
-}
-
-.csv-btn {
-  text-decoration: none;
-  color: inherit;
 }

@@ -6,8 +6,7 @@ import {
   CorsEditor,
   HttpsEditor,
 } from "../components/DropDownEditor";
-import { Row, Entry, Comparator, exportToPDFProps } from "./types";
-import { dialogClasses } from "@mui/material";
+import { Row, Entry, Comparator } from "./types";
 
 export const groupingOptions = [
   "API",

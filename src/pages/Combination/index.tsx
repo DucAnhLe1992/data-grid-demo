@@ -7,7 +7,7 @@ import DataGrid, {
   RowRendererProps,
   Row as DataGridRow,
 } from "react-data-grid";
-import { Select, MenuItem, TextField, Button } from "@mui/material";
+import { Select, MenuItem, TextField } from "@mui/material";
 import { groupBy } from "lodash";
 import { CSVLink } from "react-csv";
 import "react-data-grid/lib/styles.css";
@@ -35,10 +35,11 @@ import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
 import GroupingForm from "../../components/GroupingForm";
 import SavePDF from "../../components/SavePDF";
+import SortingField from "../../components/SortingField";
 import { useConTextMenu } from "../../utils/hooks";
 import ContextMenuComponent from "../../components/ContextMenu";
-import { LabelKeyObject } from "react-csv/components/CommonPropTypes";
 import "./index.css";
+import SaveCSV from "../../components/SaveCSV";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -60,11 +61,11 @@ const Combination = () => {
   const [filters, setFilters] = useState<Filter>(defaultFilters);
   const [filteredRows, setFilteredRows] = useState(rows);
 
-  //const [sortedRows, setSortedRows] = useState(filteredRows);
-  //const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+  const [sortedRows, setSortedRows] = useState(filteredRows);
+  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
 
   //filtered data then to be allowed for editing
-  const [editedRows, setEditedRows] = useState(filteredRows);
+  const [editedRows, setEditedRows] = useState(sortedRows);
 
   //filtered data then also to be grouped
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -108,7 +109,7 @@ const Combination = () => {
     );
   }, [rows, filters]);
 
-  /* useMemo(() => {
+  useMemo(() => {
     setSortedRows(() => {
       if (sortColumns.length === 0) return filteredRows;
 
@@ -123,12 +124,12 @@ const Combination = () => {
         return 0;
       });
     });
-  }, [filteredRows, sortColumns]); */
+  }, [filteredRows, sortColumns]);
 
   //only allow filtered data to be edited
   useMemo(() => {
-    setEditedRows(filteredRows);
-  }, [filteredRows]);
+    setEditedRows(sortedRows);
+  }, [sortedRows]);
 
   //data for the subline section
   const details: Detail[] = useMemo(
@@ -434,47 +435,21 @@ const Combination = () => {
   return (
     <div className="root">
       <div className="header">
+        <SortingField />
         <GroupingForm
           options={groupingOptions}
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
         />
         <div className="header-save-reports">
-          <Button>
-            <CSVLink
-              className="csv-btn"
-              filename="CSV-Excel-report"
-              data={editedRows}
-              headers={exportColumns.map(
-                (column: Column<Row>) =>
-                  ({
-                    label: column.name,
-                    key: column.key,
-                  } as LabelKeyObject)
-              )}
-            >
-              Download CSV file
-            </CSVLink>
-          </Button>
+          <SaveCSV data={editedRows} headers={exportColumns} />
           <SavePDF
             orientation="p"
             unit="pc"
             size="A4"
             title="API Report"
-            headers={[
-              exportColumns
-                .map((column: Column<Row>) => column.name as string)
-                .filter(
-                  (header) => header !== "Description" && header !== "Link"
-                ),
-            ]}
-            data={editedRows.map((row: Row) => [
-              row.api,
-              row.auth,
-              row.category,
-              row.cors,
-              row.https,
-            ])}
+            headers={exportColumns}
+            data={editedRows}
             fileName="PDF-report"
           />
         </div>
@@ -521,8 +496,6 @@ const Combination = () => {
               (key: Key, props: RowRendererProps<Row, unknown>) => ReactNode
             >,
           }}
-          //sortColumns={sortColumns}
-          //onSortColumnsChange={setSortColumns}
         />
       </FilterContext.Provider>
       {clicked && contextMenu && (
