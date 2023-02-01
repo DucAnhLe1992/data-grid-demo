@@ -147,7 +147,7 @@ const Combination = () => {
     setSortedRows(rows);
   };
 
-  // get the selected rows
+  // get the selected rows for exporting
   const getSelectedRows = (selectedRows: Set<number>) =>
     Array.from(selectedRows).map((index: number) =>
       sortedRows.find((row: Row) => row.id === index)
