@@ -61,3 +61,17 @@ export const getComparator = (sortColumn: string): Comparator => {
     return a[sortColumn].localeCompare(b[sortColumn]);
   };
 };
+
+export const generateRandomArray = (initial: any[], quantity: number) => {
+  let result: any[] = [];
+  const length = initial.length;
+
+  for (let i = 0; i < quantity; ++i) {
+    let randomNumber;
+    do {
+      randomNumber = Math.floor(Math.random() * length);
+      result.push(initial[randomNumber]);
+    } while (!result.includes(initial[randomNumber]));
+  }
+  return result;
+};

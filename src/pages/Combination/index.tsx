@@ -1,15 +1,13 @@
 import { Key, createContext, useState, useMemo, ReactNode } from "react";
 import DataGrid, {
   Column,
-  SortColumn,
   RowsChangeData,
-  textEditor,
   RowRendererProps,
   Row as DataGridRow,
+  SelectColumn,
 } from "react-data-grid";
 import { Select, MenuItem, TextField } from "@mui/material";
 import { groupBy } from "lodash";
-import { CSVLink } from "react-csv";
 import "react-data-grid/lib/styles.css";
 
 import { useAppSelector } from "../../redux/hooks";
@@ -17,19 +15,9 @@ import {
   initRows,
   detailColumns,
   groupingOptions,
-  getComparator,
   columns as exportColumns,
 } from "../../utils/helpers";
-import {
-  Filter,
-  Row,
-  Detail,
-  Maybe,
-  ContextMenu,
-  Orientation,
-  Unit,
-  Size,
-} from "../../utils/types";
+import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
 import FilterField from "../../components/FilterField";
 import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
@@ -38,8 +26,8 @@ import SavePDF from "../../components/SavePDF";
 import SortingField from "../../components/SortingField";
 import { useConTextMenu } from "../../utils/hooks";
 import ContextMenuComponent from "../../components/ContextMenu";
-import "./index.css";
 import SaveCSV from "../../components/SaveCSV";
+import "./index.css";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -61,10 +49,13 @@ const Combination = () => {
   const [filters, setFilters] = useState<Filter>(defaultFilters);
   const [filteredRows, setFilteredRows] = useState(rows);
 
+  // filtered data then to be sorted
   const [sortedRows, setSortedRows] = useState(filteredRows);
 
-  //filtered data then to be allowed for editing
-  //const [editedRows, setEditedRows] = useState(sortedRows);
+  //sorted data then to be selected
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(
+    () => new Set()
+  );
 
   //filtered data then also to be grouped
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -107,28 +98,6 @@ const Combination = () => {
       })
     );
   }, [rows, filters]);
-
-  /* useMemo(() => {
-    setSortedRows(() => {
-      if (sortColumns.length === 0) return filteredRows;
-
-      return [...filteredRows].sort((a, b) => {
-        for (const sort of sortColumns) {
-          const comparator = getComparator(sort.columnKey);
-          const compResult = comparator(a, b);
-          if (compResult !== 0) {
-            return sort.direction === "ASC" ? compResult : -compResult;
-          }
-        }
-        return 0;
-      });
-    });
-  }, [filteredRows, sortColumns]); */
-
-  //only allow filtered data to be edited
-  /* useMemo(() => {
-    setEditedRows(sortedRows);
-  }, [sortedRows]); */
 
   //data for the subline section
   const details: Detail[] = useMemo(
@@ -175,12 +144,19 @@ const Combination = () => {
     } else {
       rows.splice(indexes[0] + 1, 0, details[row.id]);
     }
-    setRows(rows);
+    setSortedRows(rows);
   };
+
+  // get the selected rows
+  const getSelectedRows = (selectedRows: Set<number>) =>
+    Array.from(selectedRows).map((index: number) =>
+      sortedRows.find((row: Row) => row.id === index)
+    );
 
   //define the columns for the data grid, adding filtering fields too.
   const columns = useMemo(
     (): Column<Row>[] => [
+      SelectColumn,
       {
         key: "expand",
         name: "",
@@ -445,14 +421,17 @@ const Combination = () => {
           setSelectedOptions={setSelectedOptions}
         />
         <div className="header-save-reports">
-          <SaveCSV data={sortedRows} headers={exportColumns} />
+          <SaveCSV
+            data={getSelectedRows(selectedRows) as Row[]}
+            headers={exportColumns}
+          />
           <SavePDF
-            orientation="p"
+            orientation="l"
             unit="pc"
             size="A4"
             title="API Report"
             headers={exportColumns}
-            data={sortedRows}
+            data={getSelectedRows(selectedRows) as Row[]}
             fileName="PDF-report"
           />
         </div>
@@ -465,6 +444,8 @@ const Combination = () => {
           rowGrouper={groupBy}
           expandedGroupIds={expandedGroup}
           onExpandedGroupIdsChange={setExpandedGroup}
+          selectedRows={selectedRows}
+          onSelectedRowsChange={setSelectedRows}
           defaultColumnOptions={{ resizable: true, sortable: true }}
           onRowsChange={onRowsChange}
           rowHeight={(args) =>

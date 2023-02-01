@@ -10,7 +10,7 @@ function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(setInitData());
+    dispatch(setInitData(50));
   }, [dispatch]);
 
   return (
