@@ -64,7 +64,7 @@ const Combination = () => {
   const [sortedRows, setSortedRows] = useState(filteredRows);
 
   //filtered data then to be allowed for editing
-  const [editedRows, setEditedRows] = useState(sortedRows);
+  //const [editedRows, setEditedRows] = useState(sortedRows);
 
   //filtered data then also to be grouped
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -126,9 +126,9 @@ const Combination = () => {
   }, [filteredRows, sortColumns]); */
 
   //only allow filtered data to be edited
-  useMemo(() => {
+  /* useMemo(() => {
     setEditedRows(sortedRows);
-  }, [sortedRows]);
+  }, [sortedRows]); */
 
   //data for the subline section
   const details: Detail[] = useMemo(
@@ -445,14 +445,14 @@ const Combination = () => {
           setSelectedOptions={setSelectedOptions}
         />
         <div className="header-save-reports">
-          <SaveCSV data={editedRows} headers={exportColumns} />
+          <SaveCSV data={sortedRows} headers={exportColumns} />
           <SavePDF
             orientation="p"
             unit="pc"
             size="A4"
             title="API Report"
             headers={exportColumns}
-            data={editedRows}
+            data={sortedRows}
             fileName="PDF-report"
           />
         </div>
@@ -460,7 +460,7 @@ const Combination = () => {
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
-          rows={editedRows}
+          rows={sortedRows}
           groupBy={selectedOptions}
           rowGrouper={groupBy}
           expandedGroupIds={expandedGroup}
