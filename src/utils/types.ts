@@ -45,6 +45,17 @@ export type Filter = Omit<Row, "id">;
 
 export type Comparator = (a: Row, b: Row) => number;
 
+export type Header =
+  | "type"
+  | "api"
+  | "auth"
+  | "category"
+  | "cors"
+  | "description"
+  | "https"
+  | "link"
+  | "expanded";
+
 export type Orientation = "p" | "portrait" | "l" | "landscape";
 
 export type Unit = "pt" | "px" | "in" | "mm" | "cm" | "ex" | "em" | "pc";
