@@ -5,6 +5,8 @@ import {
   Checkbox,
 } from "@mui/material";
 
+import "./index.css";
+
 interface GroupingFormProps {
   options: string[];
   selectedOptions: string[];
@@ -37,10 +39,12 @@ const GroupingForm = ({
       </Typography>
 
       <FormGroup
+        className="filter-option"
         style={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
+          alignContent: "center",
         }}
       >
         {options.map((option: any) => (

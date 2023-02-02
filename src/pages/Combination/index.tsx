@@ -15,7 +15,7 @@ import {
   initRows,
   detailColumns,
   groupingOptions,
-  columns as exportColumns,
+  columns as initialColumns,
 } from "../../utils/helpers";
 import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
 import FilterField from "../../components/FilterField";
@@ -28,6 +28,7 @@ import { useConTextMenu } from "../../utils/hooks";
 import ContextMenuComponent from "../../components/ContextMenu";
 import SaveCSV from "../../components/SaveCSV";
 import "./index.css";
+import ColumnSelection from "../../components/ColumnSelection";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -66,6 +67,9 @@ const Combination = () => {
   const { clicked, setClicked } = useConTextMenu({
     setContextMenu: setContextMenu,
   });
+
+  //column selection for exporting
+  const [exportColumns, setExportColumns] = useState<string[]>([]);
 
   //load data everytime the incoming data changes
   useMemo(() => {
@@ -411,7 +415,7 @@ const Combination = () => {
     <div className="root">
       <div className="header">
         <SortingField
-          sortOptions={exportColumns}
+          sortOptions={initialColumns}
           rows={filteredRows}
           setSortedRows={setSortedRows}
         />
@@ -419,6 +423,10 @@ const Combination = () => {
           options={groupingOptions}
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
+        />
+        <ColumnSelection
+          columns={initialColumns.map((column) => column.name as string)}
+          setColumnSelection={setExportColumns}
         />
         <div className="header-save-reports">
           <SaveCSV
