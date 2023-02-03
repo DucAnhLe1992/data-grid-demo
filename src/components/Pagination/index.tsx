@@ -18,12 +18,18 @@ import "./index.css";
 
 interface PaginationProps {
   totalRows: number;
+  pageLimit: number;
   onPageChanged: (args: PaginationData) => void;
+  setPageLimit: (args: number) => void;
 }
 
-const Pagination = ({ totalRows, onPageChanged }: PaginationProps) => {
+const Pagination = ({
+  totalRows,
+  onPageChanged,
+  pageLimit,
+  setPageLimit,
+}: PaginationProps) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageLimit, setPageLimit] = useState<number>(10);
 
   const totalPages = useMemo(
     () => Math.ceil(totalRows / pageLimit),
@@ -45,7 +51,7 @@ const Pagination = ({ totalRows, onPageChanged }: PaginationProps) => {
     [currentPage, pageNeighbours, totalPages]
   );
 
-  const goToPage = (page: number) => {
+  const goToPage = (page: number, pageLimit: number) => {
     const currentPage = Math.max(0, Math.min(page, totalPages));
     const paginationData = {
       currentPage,
@@ -57,20 +63,20 @@ const Pagination = ({ totalRows, onPageChanged }: PaginationProps) => {
   };
 
   const handleMoveToPage = (page: number) => () => {
-    goToPage(page);
+    goToPage(page, pageLimit);
   };
 
   const handleMoveRight = () => {
-    goToPage(currentPage + pageNeighbours + 1);
+    goToPage(currentPage + pageNeighbours + 1, pageLimit);
   };
 
   const handleMoveLeft = () => {
-    goToPage(currentPage - pageNeighbours - 1);
+    goToPage(currentPage - pageNeighbours - 1, pageLimit);
   };
 
   // run everytime the row limit selection changes
   useEffect(() => {
-    goToPage(1);
+    goToPage(1, pageLimit);
   }, [pageLimit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
@@ -104,7 +110,8 @@ const Pagination = ({ totalRows, onPageChanged }: PaginationProps) => {
               <Button onClick={handleMoveToPage(page as number)}>
                 <ListItemText
                   sx={{
-                    color: page === currentPage ? "red" : "primary",
+                    color: page === currentPage ? "red" : "",
+                    border: page === currentPage ? "1px solid red" : "",
                   }}
                 >
                   {page}

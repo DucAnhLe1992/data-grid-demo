@@ -8,7 +8,7 @@ import {
 } from "../components/DropDownEditor";
 import { Row, Entry, Comparator } from "./types";
 
-export const groupingOptions = [
+export const columnsOptions = [
   "API",
   "Auth",
   "Category",

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   FormControlLabel,
   Select,
@@ -9,37 +8,36 @@ import {
 } from "@mui/material";
 
 interface ColumnSelectionProps {
-  setColumnSelection: (args: any) => void;
-  columns: string[];
+  setColumnSelection: (args: string[]) => void;
+  columnSelection: string[];
+  allColumns: string[];
 }
 
 const ColumnSelection = ({
   setColumnSelection,
-  columns,
+  columnSelection,
+  allColumns,
 }: ColumnSelectionProps) => {
-  const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-  useEffect(() => {
-    setColumnSelection(selectedColumns);
-  }, [selectedColumns, setColumnSelection]);
-
   return (
     <FormControl variant="standard" sx={{ m: 1, minWidth: 150 }}>
       <InputLabel>Export columns</InputLabel>
       <Select title="Select columns for export">
-        {columns.map((element) => (
+        {allColumns.map((element) => (
           <MenuItem key={element}>
             <FormControlLabel
               label={element}
               key={element}
               control={
                 <Checkbox
-                  checked={selectedColumns.includes(element)}
+                  checked={columnSelection.includes(element)}
                   onChange={(event) => {
                     if (event.target.checked) {
-                      setSelectedColumns([...selectedColumns, element]);
+                      setColumnSelection([...columnSelection, element].sort());
                     } else {
-                      setSelectedColumns(
-                        selectedColumns.filter((option) => option !== element)
+                      setColumnSelection(
+                        columnSelection
+                          .filter((option) => option !== element)
+                          .sort()
                       );
                     }
                   }}

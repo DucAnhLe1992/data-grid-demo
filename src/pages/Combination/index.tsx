@@ -21,7 +21,7 @@ import { useAppSelector } from "../../redux/hooks";
 import {
   initRows,
   detailColumns,
-  groupingOptions,
+  columnsOptions,
   columns as initialColumns,
 } from "../../utils/helpers";
 import {
@@ -75,10 +75,11 @@ const Combination = () => {
   );
 
   //sorted data then to be paginated
+  const [pageLimit, setPageLimit] = useState<number>(10);
   const [paginatedRows, setPaginatedRows] = useState<PaginationType>({
-    currentRows: sortedRows.slice(0, 10),
+    currentRows: sortedRows.slice(0, pageLimit),
     currentPage: 1,
-    totalPages: Math.ceil(sortedRows.length / 10),
+    totalPages: Math.ceil(sortedRows.length / pageLimit),
   });
 
   //filtered data then also to be grouped
@@ -92,7 +93,7 @@ const Combination = () => {
   });
 
   //column selection for exporting
-  const [exportColumns, setExportColumns] = useState<string[]>([]);
+  const [columnSelection, setColumnSelection] = useState<string[]>([]);
 
   //load data everytime the incoming data changes
   useMemo(() => {
@@ -188,10 +189,10 @@ const Combination = () => {
   useEffect(() => {
     setPaginatedRows({
       currentPage: 1,
-      totalPages: Math.ceil(sortedRows.length / 10),
-      currentRows: sortedRows.slice(0, 10),
+      totalPages: Math.ceil(sortedRows.length / pageLimit),
+      currentRows: sortedRows.slice(0, pageLimit),
     });
-  }, [sortedRows]);
+  }, [sortedRows]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // get the selected rows for exporting
   const getSelectedRows = (selectedRows: Set<number>) =>
@@ -199,7 +200,7 @@ const Combination = () => {
       sortedRows.find((row: Row) => row.id === index)
     );
 
-  //define the columns for the data grid, adding filtering fields too.
+  // define the columns for the data grid, including those that are selected
   const columns = useMemo(
     (): Column<Row>[] => [
       SelectColumn,
@@ -239,222 +240,91 @@ const Combination = () => {
           );
         },
       },
-      {
-        key: "api",
-        name: "API",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <TextField
-                {...rest}
-                value={filters.api}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    api: event.target.value,
-                  })
-                }
-              />
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "auth",
-        name: "Auth",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <Select
-                {...rest}
-                value={filters.auth}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    auth: event.target.value,
-                  })
-                }
+
+      ...columnSelection.map((column) => {
+        if (["Auth", "Category", "Cors", "HTTPS"].includes(column)) {
+          return {
+            key: column.toLowerCase(),
+            name: column,
+            headerCellClass: "filter-element",
+            headerRenderer: (p: any) => (
+              <FilterField<Row, unknown, HTMLInputElement>
+                FilterContext={FilterContext}
+                {...p}
               >
-                <MenuItem key={"All"} value={"All"}>
-                  All
-                </MenuItem>
-                {classifications.auth.map((element) => (
-                  <MenuItem key={element} value={element}>
-                    {element}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "category",
-        name: "Category",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <Select
-                {...rest}
-                value={filters.category}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    category: event.target.value,
-                  })
-                }
-              >
-                <MenuItem key={"All"} value={"All"}>
-                  All
-                </MenuItem>
-                {classifications.category.map((element) => (
-                  <MenuItem key={element} value={element}>
-                    {element}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "cors",
-        name: "Cors",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <Select
-                {...rest}
-                value={filters.cors}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    cors: event.target.value,
-                  })
-                }
-              >
-                <MenuItem key={"All"} value={"All"}>
-                  All
-                </MenuItem>
-                {classifications.cors.map((element) => (
-                  <MenuItem key={element} value={element}>
-                    {element}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "description",
-        name: "Description",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <TextField
-                {...rest}
-                value={filters.description}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    description: event.target.value,
-                  })
-                }
-              />
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "https",
-        name: "HTTPS",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <Select
-                {...rest}
-                value={filters.https}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    https: event.target.value,
-                  })
-                }
-              >
-                <MenuItem key={"All"} value={"All"}>
-                  All
-                </MenuItem>
-                {classifications.https.map((element) => (
-                  <MenuItem key={element} value={element}>
-                    {element}
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
-          </FilterField>
-        ),
-      },
-      {
-        key: "link",
-        name: "Link",
-        headerCellClass: "filter-element",
-        headerRenderer: (p) => (
-          <FilterField<Row, unknown, HTMLInputElement>
-            FilterContext={FilterContext}
-            {...p}
-          >
-            {({ filters, ...rest }) => (
-              <TextField
-                {...rest}
-                value={filters.link}
-                onChange={(event) =>
-                  setFilters({
-                    ...filters,
-                    link: event.target.value,
-                  })
-                }
-              />
-            )}
-          </FilterField>
-        ),
-      },
+                {({ filters, ...rest }) => (
+                  <Select
+                    {...rest}
+                    value={
+                      filters[
+                        column.toLowerCase() as
+                          | "auth"
+                          | "category"
+                          | "cors"
+                          | "https"
+                      ]
+                    }
+                    onChange={(event) =>
+                      setFilters({
+                        ...filters,
+                        [column.toLowerCase()]: event.target.value,
+                      })
+                    }
+                  >
+                    <MenuItem key={"All"} value={"All"}>
+                      All
+                    </MenuItem>
+                    {classifications[
+                      column.toLowerCase() as
+                        | "auth"
+                        | "category"
+                        | "cors"
+                        | "https"
+                    ].map((element) => (
+                      <MenuItem key={element} value={element}>
+                        {element}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              </FilterField>
+            ),
+          };
+        }
+        return {
+          key: column.toLowerCase(),
+          name: column,
+          headerCellClass: "filter-element",
+          headerRenderer: (p: any) => (
+            <FilterField<Row, unknown, HTMLInputElement>
+              FilterContext={FilterContext}
+              {...p}
+            >
+              {({ filters, ...rest }) => (
+                <TextField
+                  {...rest}
+                  value={
+                    filters[
+                      column.toLowerCase() as "api" | "description" | "link"
+                    ]
+                  }
+                  onChange={(event) =>
+                    setFilters({
+                      ...filters,
+                      [column.toLowerCase()]: event.target.value,
+                    })
+                  }
+                />
+              )}
+            </FilterField>
+          ),
+        };
+      }),
     ],
-    [
-      classifications.auth,
-      classifications.category,
-      classifications.cors,
-      classifications.https,
-      details,
-    ]
+    [classifications, details, columnSelection]
   );
 
-  console.log(sortedRows);
-  console.log(paginatedRows);
+  console.log(columns, columnSelection);
 
   return (
     <div className="root">
@@ -465,25 +335,26 @@ const Combination = () => {
           setSortedRows={setSortedRows}
         />
         <GroupingForm
-          options={groupingOptions}
+          options={columnsOptions}
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
         />
         <ColumnSelection
-          columns={groupingOptions}
-          setColumnSelection={setExportColumns}
+          allColumns={columnsOptions}
+          columnSelection={columnSelection}
+          setColumnSelection={setColumnSelection}
         />
         <div className="header-save-reports">
           <SaveCSV
             data={getSelectedRows(selectedRows) as Row[]}
-            headers={exportColumns}
+            headers={columnSelection}
           />
           <SavePDF
             orientation="l"
             unit="pc"
             size="A4"
             title="API Report"
-            headers={exportColumns}
+            headers={columnSelection}
             data={getSelectedRows(selectedRows) as Row[]}
             fileName="PDF-report"
           />
@@ -535,7 +406,12 @@ const Combination = () => {
           }}
         />
       </FilterContext.Provider>
-      <Pagination totalRows={sortedRows.length} onPageChanged={onPageChanged} />
+      <Pagination
+        totalRows={sortedRows.length}
+        pageLimit={pageLimit}
+        onPageChanged={onPageChanged}
+        setPageLimit={setPageLimit}
+      />
       {clicked && contextMenu && (
         <ContextMenuComponent
           open={clicked}
