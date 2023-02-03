@@ -19,24 +19,11 @@ const dataReducer = createSlice({
   },
 });
 
-export const setInitData = (numberOfRows: number) => {
+export const setInitData = () => {
   return async (dispatch: AppDispatch) => {
     const res = await fetch("https://api.publicapis.org/entries");
     const data = await res.json();
-    const selectedData = generateRandomArray(
-      data.entries,
-      numberOfRows > data.count
-        ? data.count
-        : numberOfRows < 0
-        ? 0
-        : numberOfRows
-    );
-    dispatch(
-      setData({
-        count: selectedData.length,
-        entries: selectedData,
-      })
-    );
+    dispatch(setData(data));
   };
 };
 

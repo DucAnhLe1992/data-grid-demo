@@ -1,4 +1,11 @@
-import { Key, createContext, useState, useMemo, ReactNode } from "react";
+import {
+  Key,
+  createContext,
+  useState,
+  useMemo,
+  ReactNode,
+  useEffect,
+} from "react";
 import DataGrid, {
   Column,
   RowsChangeData,
@@ -17,7 +24,15 @@ import {
   groupingOptions,
   columns as initialColumns,
 } from "../../utils/helpers";
-import { Filter, Row, Detail, Maybe, ContextMenu } from "../../utils/types";
+import {
+  Filter,
+  Row,
+  Detail,
+  Maybe,
+  ContextMenu,
+  PaginationType,
+  PaginationData,
+} from "../../utils/types";
 import FilterField from "../../components/FilterField";
 import SublineDetails from "../../components/SublineDetails";
 import RowExpander from "../../components/RowExpander";
@@ -29,6 +44,7 @@ import ContextMenuComponent from "../../components/ContextMenu";
 import SaveCSV from "../../components/SaveCSV";
 import "./index.css";
 import ColumnSelection from "../../components/ColumnSelection";
+import Pagination from "../../components/Pagination";
 
 const FilterContext = createContext<Filter | undefined>(undefined);
 const defaultFilters: Filter = {
@@ -57,6 +73,13 @@ const Combination = () => {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(
     () => new Set()
   );
+
+  //sorted data then to be paginated
+  const [paginatedRows, setPaginatedRows] = useState<PaginationType>({
+    currentRows: sortedRows.slice(0, 10),
+    currentPage: 1,
+    totalPages: Math.ceil(sortedRows.length / 10),
+  });
 
   //filtered data then also to be grouped
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -148,8 +171,27 @@ const Combination = () => {
     } else {
       rows.splice(indexes[0] + 1, 0, details[row.id]);
     }
-    setSortedRows(rows);
+    setPaginatedRows({
+      ...paginatedRows,
+      currentRows: rows,
+    });
   };
+
+  //paginate the rows so as to allow only certain parts of rows to be shown
+  const onPageChanged = (paginationData: PaginationData) => {
+    const { currentPage, totalPages, pageLimit } = paginationData;
+    const offset = (currentPage - 1) * pageLimit;
+    const currentRows = sortedRows.slice(offset, offset + pageLimit);
+    setPaginatedRows({ currentRows, currentPage, totalPages });
+  };
+
+  useEffect(() => {
+    setPaginatedRows({
+      currentPage: 1,
+      totalPages: Math.ceil(sortedRows.length / 10),
+      currentRows: sortedRows.slice(0, 10),
+    });
+  }, [sortedRows]);
 
   // get the selected rows for exporting
   const getSelectedRows = (selectedRows: Set<number>) =>
@@ -411,6 +453,9 @@ const Combination = () => {
     ]
   );
 
+  console.log(sortedRows);
+  console.log(paginatedRows);
+
   return (
     <div className="root">
       <div className="header">
@@ -425,7 +470,7 @@ const Combination = () => {
           setSelectedOptions={setSelectedOptions}
         />
         <ColumnSelection
-          columns={initialColumns.map((column) => column.name as string)}
+          columns={groupingOptions}
           setColumnSelection={setExportColumns}
         />
         <div className="header-save-reports">
@@ -447,7 +492,7 @@ const Combination = () => {
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
-          rows={sortedRows}
+          rows={paginatedRows.currentRows}
           groupBy={selectedOptions}
           rowGrouper={groupBy}
           expandedGroupIds={expandedGroup}
@@ -490,6 +535,7 @@ const Combination = () => {
           }}
         />
       </FilterContext.Provider>
+      <Pagination totalRows={sortedRows.length} onPageChanged={onPageChanged} />
       {clicked && contextMenu && (
         <ContextMenuComponent
           open={clicked}

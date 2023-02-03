@@ -63,7 +63,7 @@ export const getComparator = (sortColumn: string): Comparator => {
 };
 
 export const generateRandomArray = (initial: any[], quantity: number) => {
-  let result: any[] = [];
+  const result: any[] = [];
   const length = initial.length;
 
   for (let i = 0; i < quantity; ++i) {

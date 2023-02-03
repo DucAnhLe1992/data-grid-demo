@@ -1,5 +1,8 @@
 export type Maybe<T> = T | null | undefined;
 
+export const LEFT_PAGE = "LEFT_PAGE";
+export const RIGHT_PAGE = "RIGHT_PAGE";
+
 export type Data = {
   count: number;
   entries: Entry[];
@@ -37,6 +40,18 @@ export type ContextMenu = {
   rowId: number;
   top: number;
   left: number;
+};
+
+export type PaginationData = {
+  currentPage: number;
+  totalPages: number;
+  pageLimit: number;
+};
+
+export type PaginationType = {
+  currentRows: Row[];
+  currentPage: number | null;
+  totalPages: number | null;
 };
 
 export type Detail = Row & { type: string };
