@@ -93,7 +93,8 @@ const Combination = () => {
   });
 
   //column selection for exporting
-  const [columnSelection, setColumnSelection] = useState<string[]>([]);
+  const [columnSelection, setColumnSelection] =
+    useState<string[]>(columnsOptions);
 
   //load data everytime the incoming data changes
   useMemo(() => {
@@ -221,7 +222,13 @@ const Combination = () => {
           if (row.type === "detail") {
             return (
               <SublineDetails
-                columns={detailColumns}
+                columns={detailColumns.reduce(
+                  (previous, current) =>
+                    columnSelection.includes(current.name as string)
+                      ? previous.concat(current)
+                      : previous,
+                  [] as Column<Row>[]
+                )}
                 rows={[details[row.id]]}
                 isRowSelected={isCellSelected}
               />
