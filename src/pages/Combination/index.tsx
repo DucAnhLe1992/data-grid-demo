@@ -324,8 +324,6 @@ const Combination = () => {
     [classifications, details, columnSelection]
   );
 
-  console.log(columns, columnSelection);
-
   return (
     <div className="root">
       <div className="header">

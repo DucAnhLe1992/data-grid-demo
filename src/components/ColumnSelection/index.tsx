@@ -20,8 +20,8 @@ const ColumnSelection = ({
 }: ColumnSelectionProps) => {
   return (
     <FormControl variant="standard" sx={{ m: 1, minWidth: 150 }}>
-      <InputLabel>Export columns</InputLabel>
-      <Select title="Select columns for export">
+      <InputLabel>Select columns</InputLabel>
+      <Select title="Select columns for display and export">
         {allColumns.map((element) => (
           <MenuItem key={element}>
             <FormControlLabel
