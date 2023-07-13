@@ -1,8 +1,11 @@
-import React, { useState } from "react";
-import _ from "lodash";
+import React, { useMemo } from "react";
+import _, { forEach } from "lodash";
 import RGL, { WidthProvider } from "react-grid-layout";
 
+import { useAppSelector } from "../../redux/hooks";
+import { initRows } from "../../utils/helpers";
 import "./index.css";
+import { Row } from "../../utils/types";
 
 const ReactGridLayout = WidthProvider(RGL);
 
@@ -20,28 +23,39 @@ const BasicLayout = ({
   cols,
   ...props
 }: BasicLayoutProps & any) => {
-  const [layout, setLayout] = useState<any>(() =>
-    _.map(new Array(items), function (item, i) {
-      const y =
-        (_.result(props, "y") as number) || Math.ceil(Math.random() * 4) + 1;
-      return {
-        x: (i * 2) % 12,
-        y: Math.floor(i / 6) * y,
-        w: 2,
-        h: y,
-        i: i.toString(),
-      };
-    })
+  const data = useAppSelector((state) => state.data.entries);
+  const rows = useMemo(() => initRows(data), [data]);
+  const layout = useMemo(
+    () =>
+      rows.map((_, i) => {
+        const y = Math.ceil(Math.random() * 4) + 1;
+        return {
+          x: (i * 2) % 12,
+          y: Math.floor(i / 6) * y,
+          w: 2,
+          h: 9,
+          i: i.toString(),
+          resizeHandles: ["s", "e", "se"],
+        };
+      }),
+    [rows]
   );
 
-  const generateDOM = () => {
-    return _.map(_.range(items), (i) => {
-      return (
-        <div key={i}>
-          <span className="card">{i}</span>
-        </div>
-      );
-    });
+  const generateDOM = (quantity: number, rows: Row[]) => {
+    let newRows: Row[] = [];
+    for (let i = 0; i < quantity; i++) {
+      newRows.push(rows[i]);
+    }
+    return newRows.map((row) => (
+      <div key={row.id} className="card">
+        <p><label>API: </label>{row.api}</p>
+        <p><label>Authentication: </label>{row.auth}</p>
+        <p><label>Category: </label>{row.category}</p>
+        <p><label>CORS: </label>{row.cors}</p>
+        <p><label>HTTPS: </label>{row.https}</p>
+        <p><label>Link: </label>{row.link}</p>
+      </div>
+    ));
   };
 
   return (
@@ -51,9 +65,12 @@ const BasicLayout = ({
       onLayoutChange={onLayoutChange}
       rowHeight={rowHeight}
       cols={cols}
+      isDraggable
+      isResizable
+      isBounded
       {...props}
     >
-      {generateDOM()}
+      {rows && rows.length > 0 && generateDOM(20, rows)}
     </ReactGridLayout>
   );
 };
