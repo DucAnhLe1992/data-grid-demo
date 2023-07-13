@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { generateRandomArray } from "../../utils/helpers";
 
 import { Data } from "../../utils/types";
 import { AppDispatch } from "../store";

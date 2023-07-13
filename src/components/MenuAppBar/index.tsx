@@ -26,6 +26,9 @@ const MenuAppBar = () => {
           <Button href="/combination" color="inherit">
             Combination
           </Button>
+          <Button href="/grid-layout" color="inherit">
+            Grid Layout
+          </Button>
         </Toolbar>
       </AppBar>
     </Box>

@@ -1,0 +1,10 @@
+.layout {
+    border: 0.2rem solid black;
+}
+
+.card {
+    border: 0.1rem solid blue;
+    background-color: azure;
+    margin: 0;
+    padding: 0;
+}

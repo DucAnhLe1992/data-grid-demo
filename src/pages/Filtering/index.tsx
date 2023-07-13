@@ -302,16 +302,8 @@ const Filtering = () => {
       <FilterContext.Provider value={filters}>
         <DataGrid
           columns={columns}
-          rows={[
-            {
-              id: -1,
-              ...defaultFilters,
-            },
-            {
-              id: -2,
-              ...defaultFilters,
-            },
-          ].concat(filteredRows)}
+          headerRowHeight={35*3}
+          rows={filteredRows}
           className="data-grid"
         />
       </FilterContext.Provider>

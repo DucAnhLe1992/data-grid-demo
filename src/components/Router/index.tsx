@@ -8,6 +8,7 @@ import Sorting from "../../pages/Sorting";
 import Subline from "../../pages/Subline";
 import Editing from "../../pages/Editing";
 import Combination from "../../pages/Combination";
+import GridLayout from "../../pages/GridLayout";
 
 const Router = () => (
   <Routes>
@@ -18,6 +19,7 @@ const Router = () => (
     <Route path="/subline/" element={<Subline />} />
     <Route path="/editing/" element={<Editing />} />
     <Route path="/combination/" element={<Combination />} />
+    <Route path="/grid-layout" element={<GridLayout />} />
   </Routes>
 );
 
