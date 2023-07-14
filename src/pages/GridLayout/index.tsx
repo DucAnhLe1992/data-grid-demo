@@ -42,20 +42,46 @@ const BasicLayout = ({
   );
 
   const generateDOM = (quantity: number, rows: Row[]) => {
-    let newRows: Row[] = [];
+    let newRows: number[] = [];
+    const limit = rows.length;
     for (let i = 0; i < quantity; i++) {
-      newRows.push(rows[i]);
+      let tempId = Math.floor(Math.random() * limit);
+      while (newRows.includes(tempId)) {
+        tempId = Math.floor(Math.random() * limit);
+      }
+      newRows.push(tempId);
     }
-    return newRows.map((row) => (
-      <div key={row.id} className="card">
-        <p><label>API: </label>{row.api}</p>
-        <p><label>Authentication: </label>{row.auth}</p>
-        <p><label>Category: </label>{row.category}</p>
-        <p><label>CORS: </label>{row.cors}</p>
-        <p><label>HTTPS: </label>{row.https}</p>
-        <p><label>Link: </label>{row.link}</p>
-      </div>
-    ));
+
+    return newRows
+      .map((id) => rows.find((row) => row.id === id))
+      .map((row) => (
+        <div key={row?.id} className="card">
+          <p>
+            <label>API: </label>
+            {row?.api}
+          </p>
+          <p>
+            <label>Authentication: </label>
+            {row?.auth}
+          </p>
+          <p>
+            <label>Category: </label>
+            {row?.category}
+          </p>
+          <p>
+            <label>CORS: </label>
+            {row?.cors}
+          </p>
+          <p>
+            <label>HTTPS: </label>
+            {row?.https}
+          </p>
+          <p>
+            <label>Link: </label>
+            {row?.link}
+          </p>
+        </div>
+      ));
   };
 
   return (
@@ -70,7 +96,7 @@ const BasicLayout = ({
       isBounded
       {...props}
     >
-      {rows && rows.length > 0 && generateDOM(20, rows)}
+      {rows && rows.length > 0 && generateDOM(50, rows)}
     </ReactGridLayout>
   );
 };
